@@ -3,10 +3,11 @@
 import React, { useState } from 'react'
 import { Menu } from 'lucide-react'
 import Link from 'next/link'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
+import { KindeUser } from '@kinde-oss/kinde-auth-nextjs/types'
+import { LogoutLink, LoginLink, RegisterLink } from '@kinde-oss/kinde-auth-nextjs/components'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const MobileMenu = ({ user }: { user: any }) => {
+const MobileMenu = ({ user }: { user: KindeUser<object> }) => {
     const [ isMenuOpen, setIsMenuOpen ] = useState(false);
   return (
     <div className="md:hidden z-50">
@@ -14,47 +15,29 @@ const MobileMenu = ({ user }: { user: any }) => {
       {isMenuOpen && (
         <nav className="absolute left-0 right-0 top-16 border-b border-gray-200 shadow-lg bg-white">
           <div className="flex flex-col p-4 space-y-2">
-            <Link
-              className={buttonVariants({
-                variant: "ghost",
-              })}
-              href="/pricing"
-            >
+            <Link className={buttonVariants({ variant: "ghost" })} href="/pricing">
               Pricing
             </Link>
             {!user ? (
               <>
-                <Button
-                  className={buttonVariants({
-                    variant: "secondary",
-                  })}
-                >
+                <LoginLink className={buttonVariants({ variant: "secondary" })}>
                   Login
-                </Button>
-                <Button className={buttonVariants()}>
+                </LoginLink>
+                <RegisterLink href='/register' className={buttonVariants()}>
                   Sign up
-                </Button>
+                </RegisterLink>
               </>
             ) : (
               <div className="flex items-center gap-2 flex-col md:flex-row">
-                <Link
-                  href="/dashboard"
-                  className={buttonVariants({
-                    variant: "secondary",
-                  })}
-                >
+                <Link href="/dashboard" className={buttonVariants({ variant: "secondary" })}>
                   Dashboard
                 </Link>
                 <Link className={buttonVariants()} href={"/create"}>
                   Create
                 </Link>
-                <Button
-                  className={buttonVariants({
-                    variant: "ghost",
-                  })}
-                >
+                <LogoutLink className={buttonVariants({ variant: "ghost" })}>
                   Sign out
-                </Button>
+                </LogoutLink>
               </div>
             )}
           </div>

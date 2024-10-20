@@ -1,12 +1,15 @@
 import React from 'react'
 import Link from 'next/link'
 import { Sparkles } from 'lucide-react'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import MaxWidthWrapper from './MaxWidthWrapper'
 import MobileMenu from './MobileMenu'
+import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server'
+import { LoginLink, LogoutLink, RegisterLink } from '@kinde-oss/kinde-auth-nextjs/server'
 
-const Navbar = () => {
-    const user = null;
+const Navbar = async () => {
+    const { getUser } = getKindeServerSession();
+    const user = await getUser();
   return (
     <header>
         <MaxWidthWrapper>
@@ -19,47 +22,29 @@ const Navbar = () => {
                 </Link>
                 <MobileMenu user={user} />
                 <nav className="hidden md:flex items-center space-x-4">
-                    <Link
-                        className={buttonVariants({
-                        variant: "ghost",
-                        })}
-                        href="/pricing"
-                    >
+                    <Link className={buttonVariants({ variant: "ghost" })} href="/pricing">
                         Pricing
                     </Link>
                     {!user ? (
                         <>
-                        <Button
-                            className={buttonVariants({
-                            variant: "secondary",
-                            })}
-                        >
+                        <LoginLink className={buttonVariants({ variant: "secondary" })}>
                             Login
-                        </Button>
-                        <Button className={buttonVariants()}>
+                        </LoginLink>
+                        <RegisterLink className={buttonVariants()}>
                             Sign up
-                        </Button>
+                        </RegisterLink>
                         </>
                     ) : (
                         <div className="flex items-center gap-2">
-                            <Link
-                                href="/dashboard"
-                                className={buttonVariants({
-                                variant: "secondary",
-                                })}
-                            >
+                            <Link href="/dashboard" className={buttonVariants({ variant: "secondary" })}>
                                 Dashboard
                             </Link>
                             <Link className={buttonVariants()} href={"/create"}>
                                 Create
                             </Link>
-                            <Button
-                                className={buttonVariants({
-                                variant: "ghost",
-                                })}
-                            >
+                            <LogoutLink className={buttonVariants({ variant: "ghost" })}>
                                 Sign out
-                            </Button>
+                            </LogoutLink>
                         </div>
                     )}
                 </nav>
