@@ -1,15 +1,24 @@
 import React from 'react'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card'
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardFooter, 
+  CardHeader, 
+  CardTitle 
+} from './ui/card'
 import { CheckIcon } from 'lucide-react'
+import { RegisterLink, LoginLink } from '@kinde-oss/kinde-auth-nextjs/components'
+import { buttonVariants } from './ui/button'
 
 const PricingCard = ({
     tier,
     index
 }: {
     tier: {
-        name: string;
-        price: string;
-        features: string[];
+      name: string;
+      price: string;
+      features: string[];
     };
     index: number;
 }) => {
@@ -34,9 +43,21 @@ const PricingCard = ({
       </CardContent>
       <CardFooter>
         {index === 0 ? (
-            <p>RegisterLink</p>
+          <RegisterLink
+            className={buttonVariants({
+              variant: "outline",
+            })}
+          >
+            Get started
+          </RegisterLink>
         ) : (
-            <p>LoginLink</p>
+          <LoginLink
+            className={buttonVariants({
+              variant: "default",
+            })}
+          >
+            Upgrade to Pro
+          </LoginLink>
         )}
       </CardFooter>
     </Card>
