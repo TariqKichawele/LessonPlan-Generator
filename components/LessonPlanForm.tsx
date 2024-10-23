@@ -21,6 +21,7 @@ import {
     Loader2,
     X,
 } from "lucide-react";
+import { CreateLessonPlan } from "@/app/create/actions";
 
 const LessonPlanForm = ({ isSubscribed } : { isSubscribed: boolean }) => {
     const [ step, setStep ] = useState(1);
@@ -197,10 +198,10 @@ const LessonPlanForm = ({ isSubscribed } : { isSubscribed: boolean }) => {
                                         value={formData.topic}
                                     >
                                         <SelectTrigger
-                                        className="w-full"
-                                        disabled={customSubtopic !== ""}
+                                            className="w-full"
+                                            disabled={customSubtopic !== ""}
                                         >
-                                        <SelectValue placeholder="choose a topic" />
+                                            <SelectValue placeholder="choose a topic" />
                                         </SelectTrigger>
                                         <SelectContent>
                                         {topics.map((topic) => (
@@ -236,12 +237,12 @@ const LessonPlanForm = ({ isSubscribed } : { isSubscribed: boolean }) => {
                         <motion.div variants={itemVariants}>
                             {isSubscribed && customTopic !== "" && (
                                 <div className="space-y-4 mb-4">
-                                <Input
-                                    placeholder="Enter custom subtopic"
-                                    value={customSubtopic}
-                                    onChange={(e) => handleCustomSubtopicChange(e.target.value)}
-                                    className="w-full"
-                                />
+                                    <Input
+                                        placeholder="Enter custom subtopic"
+                                        value={customSubtopic}
+                                        onChange={(e) => handleCustomSubtopicChange(e.target.value)}
+                                        className="w-full"
+                                    />
                                 </div>
                             )}
                             {(isSubscribed && customTopic === "") || !isSubscribed ? (
@@ -330,7 +331,7 @@ const LessonPlanForm = ({ isSubscribed } : { isSubscribed: boolean }) => {
                             <Select
                                 name="studentLevel"
                                 onValueChange={(value) =>
-                                handleInputChange("studentLevel", value)
+                                    handleInputChange("studentLevel", value)
                                 }
                                 value={formData.studentLevel}
                             >
@@ -378,7 +379,42 @@ const LessonPlanForm = ({ isSubscribed } : { isSubscribed: boolean }) => {
         }
     };
 
-    const handleSubmit = () => {};
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setIsLoading(true);
+
+        const formDataToSubmit = new FormData();
+
+        Object.entries(formData).forEach(([key, value]) => {
+            formDataToSubmit.append(key, value);
+        });
+
+        if(isSubscribed) {
+            if (customTopic) formDataToSubmit.set("topic", customTopic);
+            if (customSubtopic) formDataToSubmit.set("subtopic", customSubtopic);
+        }
+
+        try {
+            const res = await CreateLessonPlan(formDataToSubmit);
+            if(res.success) {
+                router.push('/dashboard');
+            } else {
+                toast({
+                    title: "Error",
+                    description: 'An error occurred. Please try again.',
+                    variant: "destructive",
+                })
+            }
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: 'An error occurred. Please try again.' + (error as Error).message,
+                variant: "destructive",
+            })
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const renderLoadingAnimation = () => {
         return (
@@ -454,9 +490,7 @@ const LessonPlanForm = ({ isSubscribed } : { isSubscribed: boolean }) => {
                         {[1, 2, 3, 4, 5].map((i) => (
                         <div
                             key={i}
-                            className={`w-3 h-3 rounded-full mx-1 ${
-                            i <= step ? "bg-indigo-500" : "bg-gray-300"
-                            }`}
+                            className={`w-3 h-3 rounded-full mx-1 ${ i <= step ? "bg-indigo-500" : "bg-gray-300"}`}
                         />
                         ))}
                     </div>
@@ -467,35 +501,35 @@ const LessonPlanForm = ({ isSubscribed } : { isSubscribed: boolean }) => {
                         animate="visible"
                     >
                         {step > 1 && (
-                        <motion.div>
-                            <Button onClick={handlePrev} variant={"outline"}>
-                            Previous
-                            </Button>
-                        </motion.div>
+                            <motion.div>
+                                <Button onClick={handlePrev} variant={"outline"}>
+                                    Previous
+                                </Button>
+                            </motion.div>
                         )}
                         {step < 5 ? (
-                        <Button
-                            onClick={handleNext}
-                            disabled={!isStepValid(step)}
-                            className={buttonVariants({
-                            variant: "default",
-                            className: "ml-auto",
-                            })}
-                            type="button"
-                        >
-                            Next
-                        </Button>
-                        ) : (
-                        <motion.div className="ml-auto">
                             <Button
-                            type="submit"
-                            className="bg-green-500 hover:bg-green-600 text-white"
-                            disabled={!isFormComplete() || isLoading}
+                                onClick={handleNext}
+                                disabled={!isStepValid(step)}
+                                className={buttonVariants({
+                                    variant: "default",
+                                    className: "ml-auto",
+                                })}
+                                type="button"
                             >
-                            <Sparkles className="w-4 h-4 mr-2" />
-                            Generate Lesson Plan
+                                Next
                             </Button>
-                        </motion.div>
+                        ) : (
+                            <motion.div className="ml-auto">
+                                <Button
+                                    type="submit"
+                                    className="bg-green-500 hover:bg-green-600 text-white"
+                                    disabled={!isFormComplete() || isLoading}
+                                >
+                                    <Sparkles className="w-4 h-4 mr-2" />
+                                    Generate Lesson Plan
+                                </Button>
+                            </motion.div>
                         )}
                     </motion.div>
                 </CardContent>

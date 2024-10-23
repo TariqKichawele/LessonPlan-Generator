@@ -4,6 +4,7 @@ import React from 'react'
 import prisma from '../../lib/prisma';
 import MaxWidthWrapper from "../../components/MaxWidthWrapper"
 import Dashboard from '../../components/Dashboard'
+import { hasSubscription, createCheckoutLink, generateCustomerPortalLink, createCustomerIfNull,  } from '@/utils/stripe';
 
 const DashboardPage = async () => {
     const { getUser } = getKindeServerSession();
@@ -12,6 +13,8 @@ const DashboardPage = async () => {
     if(!user) {
         redirect('/');
     }
+
+    await createCustomerIfNull();
 
     const userData = await prisma.user.findFirst({
         where: {
@@ -23,14 +26,28 @@ const DashboardPage = async () => {
         }
     })
 
+    console.log(userData);
+
     if(!userData) {
         redirect('/');
     }
+
+    const subscribed = await hasSubscription();
+    const manage_link = await generateCustomerPortalLink(
+        "" + userData.stripe_customer_id
+    );
+    const checkout_link = await createCheckoutLink(
+        "" + userData?.stripe_customer_id
+    );
+
 
   return (
     <MaxWidthWrapper className='py-8 md:py-20'>
         <Dashboard 
             lessonPlans={userData?.lessonPlans}
+            subscribed={subscribed.isSubscribed}
+            manage_link={manage_link || ""}
+            checkout_link={checkout_link || ""}
         />
     </MaxWidthWrapper>
   )

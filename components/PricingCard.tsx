@@ -8,10 +8,15 @@ import {
   CardTitle 
 } from './ui/card'
 import { CheckIcon } from 'lucide-react'
-import { RegisterLink, LoginLink } from '@kinde-oss/kinde-auth-nextjs/components'
+import Link from 'next/link'
+import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server'
+import prisma from '@/lib/prisma'
+import CheckoutButton from './CheckoutButton'; // Import the new Client Component
+import { createCustomerIfNull } from '@/utils/stripe'
+import { redirect } from 'next/navigation'
 import { buttonVariants } from './ui/button'
 
-const PricingCard = ({
+const PricingCard = async ({
     tier,
     index
 }: {
@@ -22,6 +27,27 @@ const PricingCard = ({
     };
     index: number;
 }) => {
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+  await createCustomerIfNull();
+
+  if (!user) {
+    redirect("/");
+  }
+
+  const userData = await prisma.user.findFirst({
+    where: {
+      id: user?.id,
+    },
+    select: {
+      stripe_customer_id: true,
+    },
+  });
+
+  if (!userData) {
+    redirect("/");
+  }
+
   return (
     <Card key={index} className={index === 1 ? "border-primary" : ""}>
       <CardHeader>
@@ -43,21 +69,16 @@ const PricingCard = ({
       </CardContent>
       <CardFooter>
         {index === 0 ? (
-          <RegisterLink
+          <Link
             className={buttonVariants({
               variant: "outline",
             })}
+            href={'/'}
           >
             Get started
-          </RegisterLink>
+          </Link>
         ) : (
-          <LoginLink
-            className={buttonVariants({
-              variant: "default",
-            })}
-          >
-            Upgrade to Pro
-          </LoginLink>
+          <CheckoutButton customerId={userData.stripe_customer_id!} /> 
         )}
       </CardFooter>
     </Card>

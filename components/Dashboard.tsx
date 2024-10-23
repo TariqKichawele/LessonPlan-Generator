@@ -8,7 +8,17 @@ import { buttonVariants } from '../components/ui/button'
 import Link from 'next/link'
 import { Package, Settings } from 'lucide-react'
 
-const Dashboard = ({ lessonPlans }: { lessonPlans: LessonPlan[] }) => {
+const Dashboard = ({ 
+  lessonPlans,
+  subscribed,
+  manage_link,
+  checkout_link
+}: { 
+  lessonPlans: LessonPlan[];
+  subscribed: boolean;
+  manage_link: string;
+  checkout_link: string;
+}) => {
     const [ subjectFilter, setSubjectFilter ] = useState<string | null>(null);
     const [ durationFilter, setDurationFilter ] = useState<number | null>(null);
 
@@ -21,7 +31,6 @@ const Dashboard = ({ lessonPlans }: { lessonPlans: LessonPlan[] }) => {
         return true;
     })
 
-    const subscribed = false;
   return (
     <div>
       <h1 className="text-3xl font-bold mb-6">Your Lesson Plans</h1>
@@ -53,12 +62,12 @@ const Dashboard = ({ lessonPlans }: { lessonPlans: LessonPlan[] }) => {
           </SelectContent>
         </Select>
         {subscribed ? (
-          <Link href={'/'} className={buttonVariants({ variant: "default" })}>
+          <Link href={manage_link} className={buttonVariants({ variant: "default" })}>
             <Settings className="mr-2 h-4 w-4" />
             Manage subscription
           </Link>
         ) : (
-          <Link href={'/'} className={buttonVariants({ variant: "default" })}>
+          <Link href={checkout_link} className={buttonVariants({ variant: "default" })}>
             <Package className="mr-2 h-4 w-4" />
             Upgrade to pro
           </Link>

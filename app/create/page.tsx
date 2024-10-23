@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import AnimatedTitle from '../../components/AnimatedTitle';
 import FeatureCards from '../../components/FeatureCards';
 import LessonPlanForm from '../../components/LessonPlanForm';
+import { checkLessonPlanCreationEligibility, hasSubscription } from '@/utils/stripe';
 
 const Create = async () => {
     const { isAuthenticated } = getKindeServerSession();
@@ -13,17 +14,14 @@ const Create = async () => {
         redirect('/')
     }
 
-    const isEligible = true;
-    const remainingGenerations = 5;
-    const message = `You can create ${remainingGenerations} more lesson plans this month.`
-
-    const isSubscribed = true;
+    const isSubscribed = await hasSubscription();
+    const { isEligible, message, remainingGenerations } = await checkLessonPlanCreationEligibility()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
         <AnimatedTitle title="Create Your" subtitle="Lesson Plan" />
-        <LessonPlanForm isSubscribed={isSubscribed} />
+        <LessonPlanForm isSubscribed={isSubscribed.isSubscribed} />
         <FeatureCards />
         {!isEligible && (
           <div className="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md">
